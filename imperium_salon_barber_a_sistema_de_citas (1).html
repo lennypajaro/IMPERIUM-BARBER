@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-zinc-950 text-zinc-100 scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imperium Salon & Barbería - Reserva de Citas Premium</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com">\n        // ====== CATÁLOGO + PERFILES Y RESEÑAS DE ESTILISTAS ======\n        function getBarberReviews(barberId) {\n            return reviews.filter(r => r.barberId === barberId);\n        }\n\n        function getBarberRating(barberId) {\n            const list = getBarberReviews(barberId);\n            if (!list.length) return 0;\n            return list.reduce((sum, r) => sum + Number(r.rating), 0) / list.length;\n        }\n\n        function stars(rating) {\n            const rounded = Math.round(rating);\n            return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);\n        }\n\n        function renderLandingBarbers() {\n            const container = document.getElementById('landing-barbers-grid');\n            if (!container) return;\n            container.innerHTML = barbers.map(b => {\n                const rating = getBarberRating(b.id);\n                const count = getBarberReviews(b.id).length;\n                return `\n                <div class="glass-panel card-hover-effect rounded-2xl p-5 space-y-4">\n                    <div class="flex items-center gap-3">\n                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-rose-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">${b.name.split(' ').map(x=>x[0]).slice(0,2).join('')}</div>\n                        <div>\n                            <h4 class="font-bold text-white text-sm">${b.name}</h4>\n                            <p class="text-[10px] text-zinc-400">${b.role}</p>\n                        </div>\n                    </div>\n                    <div class="flex items-center justify-between">\n                        <span class="text-amber-400 text-sm tracking-tight">${stars(rating)}</span>\n                        <span class="text-[10px] text-zinc-500">${rating.toFixed(1)} · ${count} reseñas</span>\n                    </div>\n                    <button onclick="showView('stylists')" class="w-full py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-amber-400 hover:bg-amber-500 hover:text-zinc-950 transition-colors">Ver perfil y reseñas</button>\n                </div>`;\n            }).join('');\n        }\n\n        function renderStylistsFull() {\n            const grid = document.getElementById('stylists-full-grid');\n            const history = document.getElementById('reviews-history');\n            if (!grid || !history) return;\n\n            grid.innerHTML = barbers.map(b => {\n                const list = getBarberReviews(b.id);\n                const rating = getBarberRating(b.id);\n                const serviceNames = services.filter(s => s.category === b.cat).slice(0,3).map(s => s.name);\n                return `\n                <article class="glass-panel rounded-3xl p-6 border border-zinc-800 card-hover-effect">\n                    <div class="flex items-start gap-4">\n                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-rose-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">${b.name.split(' ').map(x=>x[0]).slice(0,2).join('')}</div>\n                        <div class="flex-1">\n                            <h2 class="font-serif text-lg font-bold">${b.name}</h2>\n                            <p class="text-xs text-zinc-400">${b.role}</p>\n                            <div class="mt-2 flex items-center gap-2"><span class="text-amber-400">${stars(rating)}</span><span class="text-xs text-zinc-400">${rating.toFixed(1)} / 5 · ${list.length} reseñas</span></div>\n                        </div>\n                    </div>\n                    <div class="mt-5">\n                        <p class="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Especialidades</p>\n                        <div class="flex flex-wrap gap-2">${serviceNames.map(x=>`<span class="px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[10px] text-zinc-300">${x}</span>`).join('')}</div>\n                    </div>\n                    <div class="mt-5 pt-4 border-t border-zinc-800">\n                        <p class="text-[10px] uppercase tracking-widest text-zinc-500 mb-3">Últimas reseñas</p>\n                        ${list.slice(0,2).map(r=>`<div class="mb-3"><div class="flex justify-between"><b class="text-xs">${r.client}</b><span class="text-amber-400 text-xs">${stars(r.rating)}</span></div><p class="text-xs text-zinc-400 mt-1">${r.comment}</p></div>`).join('') || '<p class="text-xs text-zinc-500">Aún no hay reseñas.</p>'}\n                    </div>\n                </article>`;\n            }).join('');\n\n            history.innerHTML = reviews.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(r => {\n                const barber = barbers.find(b=>b.id===r.barberId);\n                return `<div class="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-4"><div class="flex flex-wrap items-center justify-between gap-2"><div><b class="text-sm">${r.client}</b><span class="text-zinc-500 text-xs ml-2">para ${barber ? barber.name : 'Especialista'}</span></div><span class="text-amber-400 text-sm">${stars(r.rating)}</span></div><p class="text-xs text-zinc-300 mt-2">${r.comment}</p><div class="flex justify-between text-[10px] text-zinc-600 mt-3"><span>${r.service}</span><span>${r.date}</span></div></div>`;\n            }).join('');\n        }\n\n</script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                        },
+                        rose: {
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['Cinzel', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* Glassmorphism & Visual Aesthetics */
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #854d0e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hybrid-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #f43f5e 50%, #eab308 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(234, 179, 8, 0.15); }
+            50% { box-shadow: 0 0 28px rgba(234, 179, 8, 0.35); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Interactive Hover Card Lift */
+        .card-hover-effect {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: rgba(234, 179, 8, 0.4);
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(234, 179, 8, 0.12);
+        }
+
+        /* Button Ripple & Press Animation */
+        .btn-interactive {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-interactive:active {
+            transform: scale(0.96);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ca8a04;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-zinc-950 text-zinc-100 selection:bg-amber-500 selection:text-zinc-950">
+
+    <!-- Toast Notifications Floating Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+    <!-- Encabezado de Navegación Limpio -->
+    <header class="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo & Isotipo -->
+                <div class="flex items-center gap-3.5 cursor-pointer group" onclick="showView('landing')">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-400 to-rose-500 p-0.5 shadow-lg shadow-amber-500/10 group-hover:scale-105 transition-transform">
+                        <div class="w-full h-full bg-zinc-950 rounded-[14px] flex items-center justify-center">
+                            <i class="fa-solid fa-crown text-amber-400 text-lg group-hover:rotate-12 transition-transform"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="font-serif text-lg font-bold tracking-wider hybrid-gradient-text block leading-none">IMPERIUM</span>
+                        <span class="text-[9px] tracking-[0.3em] text-zinc-500 uppercase font-semibold">Salon & Barbería</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs (Clean & Minimalist) -->
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+                    <button onclick="showView('landing')" id="nav-landing" class="hover:text-amber-400 transition-colors py-2 text-amber-400 border-b-2 border-amber-500 font-semibold">Inicio</button>
+                    <button onclick="showView('services')" id="nav-services" class="hover:text-amber-400 transition-colors py-2 border-b-2 border-transparent">Catálogo ($ COP)</button>
+                    <button onclick="showView('booking')" id="nav-booking" class="hover:text-amber-400 transition-colors py-2 border-b-2 border-transparent">Agendar Cita</button>
+                    <button onclick="showView('qr')" id="nav-qr" class="hover:text-amber-400 transition-colors py-2 border-b-2 border-transparent">Código QR</button>
+                    <button onclick="showView('stylists')" id="nav-stylists" class="hover:text-amber-400 transition-colors py-2 border-b-2 border-transparent">Estilistas & Reseñas</button>
+                </nav>
+
+                <!-- Auth Action Button & Profile Badge -->
+                <div class="flex items-center gap-3">
+                    <div id="user-badge" class="hidden items-center gap-2 text-xs text-zinc-300 bg-zinc-900/90 px-3.5 py-1.5 rounded-full border border-zinc-800 animate-fade-in">
+                        <span id="role-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="user-name-display" class="font-medium"></span>
+                    </div>
+
+                    <button id="auth-main-btn" onclick="openAuthModal('login')" class="btn-interactive px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 rounded-xl shadow-lg shadow-amber-500/10 flex items-center gap-2">
+                        <i class="fa-solid fa-user-circle text-sm"></i>
+                        <span>Ingresar</span>
+                    </button>
+
+                    <button id="panel-shortcut-btn" onclick="goToPanel()" class="hidden btn-interactive px-4 py-2 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-xl hover:bg-amber-500/20">
+                        <i class="fa-solid fa-gauge-high mr-1.5"></i> Mi Panel
+                    </button>
+
+                    <button id="logout-btn" onclick="logout()" class="hidden btn-interactive p-2.5 text-xs font-medium text-zinc-400 hover:text-red-400 bg-zinc-900 hover:bg-zinc-800 rounded-xl border border-zinc-800" title="Cerrar Sesión">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+
+                    <!-- Mobile Hamburger -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-zinc-400 hover:text-white rounded-lg">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-900 bg-zinc-950/95 p-5 space-y-3 text-sm animate-fade-in">
+            <button onclick="showView('landing'); toggleMobileMenu();" class="block w-full text-left py-2 text-zinc-300 hover:text-amber-400">Inicio</button>
+            <button onclick="showView('services'); toggleMobileMenu();" class="block w-full text-left py-2 text-zinc-300 hover:text-amber-400">Servicios ($ COP)</button>
+            <button onclick="showView('booking'); toggleMobileMenu();" class="block w-full text-left py-2 text-zinc-300 hover:text-amber-400">Agendar Cita</button>
+            <button onclick="showView('qr'); toggleMobileMenu();" class="block w-full text-left py-2 text-zinc-300 hover:text-amber-400">Código QR</button>
+            <button onclick="showView('stylists'); toggleMobileMenu();" class="block w-full text-left py-2 text-zinc-300 hover:text-amber-400">Estilistas & Reseñas</button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- VIEW 1: LANDING PAGE -->
+        <section id="view-landing" class="space-y-16 animate-fade-in">
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl overflow-hidden glass-panel border border-zinc-800/80 p-8 sm:p-14 lg:p-20 shadow-2xl">
+                <div class="absolute -top-32 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-2xl space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-amber-500/30 text-amber-400 text-xs font-semibold uppercase tracking-widest shadow-md">
+                        <i class="fa-solid fa-sparkles text-amber-400"></i> Salón de Belleza & Barbería Mixta
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                        Tu belleza y estilo en las <span class="gold-gradient-text">mejores manos.</span>
+                    </h1>
+                    <p class="text-zinc-400 text-sm sm:text-base leading-relaxed">
+                        Experimenta un concepto integral: desde cortes y barbería tradicional hasta manicura, pedicura, tintes y tratamientos capilares. Reserva online en segundos con precios en <strong>Pesos Colombianos ($ COP)</strong>.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-4">
+                        <button onclick="showView('booking')" class="btn-interactive px-7 py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 text-zinc-950 font-extrabold rounded-xl shadow-xl shadow-amber-500/10 flex items-center gap-2.5 text-sm">
+                            <i class="fa-solid fa-calendar-plus"></i> Agendar Cita Ahora
+                        </button>
+                        <button onclick="showView('services')" class="btn-interactive px-6 py-3.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl font-semibold text-sm">
+                            Ver Precios COP
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Servicios Destacados Mixtos -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between border-b border-zinc-900 pb-4">
+                    <div>
+                        <h2 class="font-serif text-2xl font-bold text-white">Servicios Destacados</h2>
+                        <p class="text-xs text-zinc-500">Peluquería, Barbería & Spa de Uñas</p>
+                    </div>
+                    <button onclick="showView('services')" class="text-amber-400 hover:text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-all">
+                        Ver Catálogo Completo <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+                <div id="landing-services-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+
+            <!-- Especialistas / Encargados -->
+            <div class="space-y-6">
+                <div class="border-b border-zinc-900 pb-4">
+                    <h2 class="font-serif text-2xl font-bold text-white">Equipo de Especialistas</h2>
+                    <p class="text-xs text-zinc-500">Estilistas, barberos y manicuristas certificados</p>
+                </div>
+                <div id="landing-barbers-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: ESTILISTAS, PERFILES Y HISTORIAL DE RESEÑAS -->
+        <section id="view-stylists" class="hidden space-y-8 animate-fade-in">
+            <div class="text-center space-y-2">
+                <p class="text-amber-400 text-xs font-semibold tracking-widest uppercase">Nuestro equipo</p>
+                <h1 class="font-serif text-3xl sm:text-4xl font-bold text-white">Estilistas & Reseñas</h1>
+                <p class="text-zinc-400 text-sm max-w-2xl mx-auto">Conoce a cada especialista, sus servicios, calificación promedio y el historial de opiniones de clientes.</p>
+            </div>
+            <div id="stylists-full-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+            <div class="glass-panel rounded-3xl p-6 border border-zinc-800">
+                <div class="flex items-center justify-between gap-4 mb-5">
+                    <div>
+                        <h2 class="font-serif text-xl font-bold">Historial de reseñas</h2>
+                        <p class="text-xs text-zinc-500">Las reseñas quedan asociadas al estilista que realizó el servicio.</p>
+                    </div>
+                    <span class="text-amber-400 text-xl"><i class="fa-solid fa-star"></i></span>
+                </div>
+                <div id="reviews-history" class="space-y-3"></div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: CATÁLOGOS CON FILTROS Y PRECIOS COP -->
+        <section id="view-services" class="hidden space-y-8 animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-6">
+                <div>
+                    <h1 class="font-serif text-3xl font-bold text-white">Catálogo de Servicios</h1>
+                    <p class="text-zinc-400 text-xs mt-1">Precios transparentes expresados en Pesos Colombianos ($ COP)</p>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                    <button onclick="filterServices('todos')" id="filter-todos" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-zinc-950 shadow-md">Todos</button>
+                    <button onclick="filterServices('barberia')" id="filter-barberia" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800">Barbería</button>
+                    <button onclick="filterServices('salon')" id="filter-salon" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800">Salón & Cabello</button>
+                    <button onclick="filterServices('unas')" id="filter-unas" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800">Spa de Uñas</button>
+                </div>
+            </div>
+
+            <div id="full-services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- VIEW 3: SISTEMA VISUAL DE RESERVA -->
+        <section id="view-booking" class="hidden max-w-2xl mx-auto animate-fade-in">
+            <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6 border border-zinc-800">
+                <div class="text-center space-y-2 border-b border-zinc-800/80 pb-6">
+                    <span class="text-amber-400 text-xs font-semibold tracking-widest uppercase"><i class="fa-solid fa-clock mr-1"></i> Agendamiento Inmediato</span>
+                    <h1 class="font-serif text-2xl sm:text-3xl font-bold text-white">Reserva tu Cita</h1>
+                    <p class="text-zinc-400 text-xs">Selecciona servicio, especialista y la fecha de tu preferencia</p>
+                </div>
+
+                <form id="booking-form" onsubmit="handleBookingSubmit(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">1. Selecciona el Servicio</label>
+                        <select id="booking-service" required onchange="calculateBookingTotal()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-amber-500 transition-colors">
+                            <option value="">-- Elige un Servicio --</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">2. Especialista / Encargado</label>
+                        <select id="booking-barber" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-amber-500 transition-colors">
+                            <option value="">-- Asignación Automática / Cualquiera --</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">3. Fecha</label>
+                            <input type="date" id="booking-date" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">4. Hora Disponible</label>
+                            <select id="booking-time" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-amber-500">
+                                <option value="">-- Selecciona Hora --</option>
+                                <option value="08:00">08:00 AM</option>
+                                <option value="09:00">09:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="13:00">01:00 PM</option>
+                                <option value="14:00">02:00 PM</option>
+                                <option value="15:00">03:00 PM</option>
+                                <option value="16:00">04:00 PM</option>
+                                <option value="17:00">05:00 PM</option>
+                                <option value="18:00">06:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-zinc-800/80 pt-5 space-y-4">
+                        <label class="block text-xs font-semibold text-zinc-300 uppercase tracking-wider">5. Datos del Cliente</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <input type="text" id="booking-client-name" placeholder="Nombre Completo" required class="bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-amber-500">
+                            <input type="tel" id="booking-client-phone" placeholder="Celular / WhatsApp" required class="bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-950/90 p-4 rounded-xl border border-zinc-800 flex items-center justify-between shadow-inner">
+                        <span class="text-xs text-zinc-400">Total a pagar en local:</span>
+                        <span id="booking-total-price" class="font-serif text-2xl font-bold gold-gradient-text">$ 0 COP</span>
+                    </div>
+
+                    <button type="submit" class="btn-interactive w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 text-zinc-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/10 text-sm">
+                        <i class="fa-solid fa-check-circle mr-1.5"></i> Confirmar Cita
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW 4: SECCIÓN DE CÓDIGO QR Y AFICHE IMPRESO -->
+        <section id="view-qr" class="hidden max-w-md mx-auto text-center space-y-6 animate-fade-in">
+            <div class="glass-panel rounded-3xl p-8 space-y-6 border border-zinc-800 shadow-2xl">
+                <div class="space-y-2">
+                    <span class="text-xs text-amber-400 font-bold uppercase tracking-wider"><i class="fa-solid fa-qrcode mr-1"></i> Acceso Físico en Local</span>
+                    <h1 class="font-serif text-2xl font-bold text-white">Código QR Promocional</h1>
+                    <p class="text-zinc-400 text-xs">Escanea con la cámara de tu celular para abrir este portal directo</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl inline-block shadow-2xl animate-float">
+                    <div id="qrcode-canvas" class="flex justify-center"></div>
+                </div>
+
+                <div class="p-3 bg-zinc-900/80 rounded-xl border border-zinc-800 text-[11px] text-zinc-400">
+                    <i class="fa-solid fa-info-circle text-amber-400 mr-1"></i> Diseñado para colocar impreso en los espejos y recepción del establecimiento.
+                </div>
+
+                <button onclick="window.print()" class="btn-interactive w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 rounded-xl text-xs font-bold">
+                    <i class="fa-solid fa-print mr-2"></i> Imprimir Afiche / Guardar
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 5: PANEL CLIENTE -->
+        <section id="view-panel-client" class="hidden space-y-6 animate-fade-in">
+            <div class="flex items-center justify-between border-b border-zinc-900 pb-4">
+                <div>
+                    <h1 class="font-serif text-2xl font-bold text-white">Panel de Cliente</h1>
+                    <p id="client-welcome-msg" class="text-xs text-zinc-400"></p>
+                </div>
+                <button onclick="showView('booking')" class="btn-interactive px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-xl shadow-md">
+                    + Agendar Nueva Cita
+                </button>
+            </div>
+
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-zinc-300">
+                        <thead class="bg-zinc-950 text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
+                            <tr>
+                                <th class="p-3.5">Servicio</th>
+                                <th class="p-3.5">Especialista</th>
+                                <th class="p-3.5">Fecha y Hora</th>
+                                <th class="p-3.5">Valor ($ COP)</th>
+                                <th class="p-3.5">Estado</th>
+                                <th class="p-3.5 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-appointments-list" class="divide-y divide-zinc-800/50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 6: PANEL ENCARGADO / ESPECIALISTA -->
+        <section id="view-panel-barber" class="hidden space-y-6 animate-fade-in">
+            <div class="border-b border-zinc-900 pb-4">
+                <h1 class="font-serif text-2xl font-bold text-white">Agenda del Especialista</h1>
+                <p class="text-xs text-zinc-400">Consulta tus citas asignadas y actualiza el estado de atención</p>
+            </div>
+
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-zinc-300">
+                        <thead class="bg-zinc-950 text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
+                            <tr>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Teléfono</th>
+                                <th class="p-3.5">Servicio</th>
+                                <th class="p-3.5">Fecha / Hora</th>
+                                <th class="p-3.5">Valor COP</th>
+                                <th class="p-3.5">Estado</th>
+                                <th class="p-3.5 text-center">Gestionar Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="barber-appointments-list" class="divide-y divide-zinc-800/50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 7: PANEL ADMINISTRADOR / DUEÑO -->
+        <section id="view-panel-admin" class="hidden space-y-6 animate-fade-in">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-900 pb-4">
+                <div>
+                    <h1 class="font-serif text-2xl font-bold text-white">Panel de Control Principal</h1>
+                    <p class="text-xs text-zinc-400">Métricas de ingresos en Pesos Colombianos ($ COP) y gestión total</p>
+                </div>
+                <button onclick="openModal('modal-add-service')" class="btn-interactive px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-600 text-zinc-950 font-bold text-xs rounded-xl shadow-md">
+                    + Registrar Nuevo Servicio
+                </button>
+            </div>
+
+            <!-- Dashboard Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-zinc-900/80 border border-zinc-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                    <span class="text-[11px] text-zinc-400 uppercase font-semibold">Ingresos Totales (COP)</span>
+                    <p id="admin-stat-revenue" class="text-2xl font-black gold-gradient-text mt-1">$ 0 COP</p>
+                    <i class="fa-solid fa-coins absolute right-4 bottom-4 text-3xl text-zinc-800/40"></i>
+                </div>
+                <div class="bg-zinc-900/80 border border-zinc-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                    <span class="text-[11px] text-zinc-400 uppercase font-semibold">Total Citas Registradas</span>
+                    <p id="admin-stat-citas" class="text-2xl font-black text-white mt-1">0</p>
+                    <i class="fa-solid fa-calendar-check absolute right-4 bottom-4 text-3xl text-zinc-800/40"></i>
+                </div>
+                <div class="bg-zinc-900/80 border border-zinc-800 p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                    <span class="text-[11px] text-zinc-400 uppercase font-semibold">Servicios del Catálogo</span>
+                    <p id="admin-stat-servicios" class="text-2xl font-black text-white mt-1">0</p>
+                    <i class="fa-solid fa-scissors absolute right-4 bottom-4 text-3xl text-zinc-800/40"></i>
+                </div>
+            </div>
+
+            <!-- Tabla Administrador -->
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-zinc-300">
+                        <thead class="bg-zinc-950 text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
+                            <tr>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Servicio</th>
+                                <th class="p-3.5">Especialista</th>
+                                <th class="p-3.5">Fecha/Hora</th>
+                                <th class="p-3.5">Valor COP</th>
+                                <th class="p-3.5">Estado</th>
+                                <th class="p-3.5 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-appointments-list" class="divide-y divide-zinc-800/50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE AUTENTICACIÓN CON CLAVES MAESTRAS -->
+    <div id="modal-auth" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-6 relative shadow-2xl space-y-5 animate-fade-in">
+            <button onclick="closeModal('modal-auth')" class="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Tabs Login / Register -->
+            <div class="flex border-b border-zinc-800">
+                <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 pb-2.5 text-center text-xs font-bold border-b-2 border-amber-500 text-amber-400">
+                    Ingresar
+                </button>
+                <button id="tab-register-btn" onclick="switchAuthTab('register')" class="flex-1 pb-2.5 text-center text-xs font-bold border-b-2 border-transparent text-zinc-500 hover:text-zinc-300">
+                    Registrarse
+                </button>
+            </div>
+
+            <!-- INICIO DE SESIÓN -->
+            <form id="form-login" onsubmit="handleLoginSubmit(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1 font-semibold">Tipo de Usuario</label>
+                    <select id="login-role" onchange="toggleLoginSecurityKey()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-zinc-100 focus:outline-none focus:border-amber-500">
+                        <option value="cliente">Cliente</option>
+                        <option value="encargado">Encargado / Especialista</option>
+                        <option value="admin">Administrador (Dueño)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1 font-semibold">Correo Electrónico</label>
+                    <input type="email" id="login-email" placeholder="correo@ejemplo.com" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-zinc-100 focus:outline-none focus:border-amber-500">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1 font-semibold">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-zinc-100 focus:outline-none focus:border-amber-500">
+                </div>
+
+                <!-- Campo clave de seguridad -->
+                <div id="login-key-container" class="hidden p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1">
+                    <label class="block text-[11px] font-bold text-amber-400">
+                        <i class="fa-solid fa-key mr-1"></i> Clave Maestra del Dueño
+                    </label>
+                    <input type="password" id="login-security-key" placeholder="Ingrese Clave de Acceso" class="w-full bg-zinc-950 border border-amber-500/40 rounded-lg px-3 py-2 text-xs text-amber-200 focus:outline-none">
+                </div>
+
+                <button type="submit" class="btn-interactive w-full py-3 bg-gradient-to-r from-amber-400 to-amber-600 text-zinc-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/10 mt-2">
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <!-- REGISTRO NUEVO -->
+            <form id="form-register" onsubmit="handleRegisterSubmit(event)" class="hidden space-y-3">
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1 font-semibold">Nombre Completo</label>
+                    <input type="text" id="reg-name" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1 font-semibold">Correo Electrónico</label>
+                    <input type="email" id="reg-email" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1 font-semibold">Contraseña</label>
+                    <input type="password" id="reg-password" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1 font-semibold">Rol a Solicitar</label>
+                    <select id="reg-role" onchange="toggleRegSecurityKey()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none">
+                        <option value="cliente">Cliente</option>
+                        <option value="encargado">Encargado / Especialista</option>
+                        <option value="admin">Administrador (Dueño)</option>
+                    </select>
+                </div>
+
+                <!-- Clave Maestra en Registro -->
+                <div id="reg-key-container" class="hidden p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1">
+                    <label class="block text-[11px] font-bold text-amber-400">
+                        <i class="fa-solid fa-shield-halved mr-1"></i> Clave Maestra Requerida
+                    </label>
+                    <input type="password" id="reg-security-key" placeholder="Ingrese Clave de Propietario" class="w-full bg-zinc-950 border border-amber-500/40 rounded-lg px-3 py-1.5 text-xs text-amber-200 focus:outline-none">
+                </div>
+
+                <button type="submit" class="btn-interactive w-full py-3 bg-gradient-to-r from-amber-400 to-amber-600 text-zinc-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/10 mt-2">
+                    Crear Cuenta
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR SERVICIO -->
+    <div id="modal-add-service" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-6 relative space-y-4 shadow-2xl animate-fade-in">
+            <button onclick="closeModal('modal-add-service')" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-serif text-lg font-bold text-white">Nuevo Servicio</h3>
+            <form onsubmit="handleAddServiceSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Nombre del Servicio</label>
+                    <input type="text" id="srv-name" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Categoría</label>
+                    <select id="srv-cat" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100">
+                        <option value="barberia">Barbería</option>
+                        <option value="salon">Salón & Cabello</option>
+                        <option value="unas">Spa de Uñas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Precio en COP ($)</label>
+                    <input type="number" id="srv-price" placeholder="Ej: 35000" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Duración (minutos)</label>
+                    <input type="number" id="srv-duration" placeholder="Ej: 45" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Descripción Breve</label>
+                    <textarea id="srv-desc" rows="2" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-100"></textarea>
+                </div>
+                <button type="submit" class="btn-interactive w-full py-2.5 bg-amber-500 text-zinc-950 font-bold text-xs rounded-xl hover:bg-amber-400">
+                    Guardar e Inserter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * CLAVES MAESTRAS DE SEGURIDAD DEL DUEÑO
+         */
+        const SECURITY_KEYS = {
+            admin: "ADMIN2026",
+            encargado: "BARBER2026"
+        };
+
+        // Datos Iniciales Mixtos (Barbería + Salón de Belleza + Uñas)
+        const initialServices = [
+            { id: '1', name: 'Corte Ejecutivo & Barbería Fade', category: 'barberia', price: 30000, duration: 40, description: 'Corte moderno con degradado a navaja, toalla caliente e hidratación.' },
+            { id: '2', name: 'Ritual de Barba Imperium', category: 'barberia', price: 25000, duration: 30, description: 'Perfilado de barba con aceites esenciales, vapor ozono y bálsamo.' },
+            { id: '3', name: 'Combo Royale (Corte + Barba)', category: 'barberia', price: 50000, duration: 60, description: 'Servicio estelar completo para caballero con lavado y peinado.' },
+            { id: '4', name: 'Blower & Cepillado de Alta Gama', category: 'salon', price: 40000, duration: 45, description: 'Lavado especial, masajes capilares y moldeado térmico con brillo extra.' },
+            { id: '5', name: 'Tinte & Balayage Especializado', category: 'salon', price: 120000, duration: 120, description: 'Coloración profesional, matizado e hidratación profunda.' },
+            { id: '6', name: 'Manicura & Pedicura Spa Rusa', category: 'unas', price: 45000, duration: 60, description: 'Exfoliación orgánica, limpieza de cutícula y esmaltado de larga duración.' }
+        ];
+
+        const initialBarbers = [
+            { id: 'b1', name: 'Carlos Mendoza', role: 'Master Barber', cat: 'barberia' },
+            { id: 'b2', name: 'Camila Torres', role: 'Estilista Colorista', cat: 'salon' },
+            { id: 'b3', name: 'Andrés Ramírez', role: 'Especialista Barba', cat: 'barberia' },
+            { id: 'b4', name: 'Valeria López', role: 'Especialista en Uñas Spa', cat: 'unas' }
+        ];
+
+        const initialReviews = [
+            { id: 'r1', barberId: 'b1', client: 'Alejandro Gómez', rating: 5, comment: 'Excelente corte y muy buena atención. El fade quedó exactamente como lo pedí.', date: '2026-09-18', service: 'Combo Royale' },
+            { id: 'r2', barberId: 'b1', client: 'Mateo Rojas', rating: 4, comment: 'Muy profesional y puntual. Volvería a reservar.', date: '2026-09-12', service: 'Corte Ejecutivo' },
+            { id: 'r3', barberId: 'b2', client: 'Laura Pérez', rating: 5, comment: 'El color quedó hermoso y me explicó todo el proceso.', date: '2026-09-20', service: 'Balayage' },
+            { id: 'r4', barberId: 'b3', client: 'Daniel Castro', rating: 5, comment: 'Excelente perfilado de barba y atención.', date: '2026-09-15', service: 'Ritual de Barba' },
+            { id: 'r5', barberId: 'b4', client: 'Sofía Martínez', rating: 5, comment: 'Muy cuidadosa y el resultado de las uñas fue excelente.', date: '2026-09-21', service: 'Manicura & Pedicura' }
+        ];
+
+                const initialAppointments = [
+            {
+                id: 'apt-101',
+                clientName: 'Alejandro Gómez',
+                clientPhone: '3109876543',
+                serviceId: '3',
+                serviceName: 'Combo Royale (Corte + Barba)',
+                price: 50000,
+                barberId: 'b1',
+                barberName: 'Carlos Mendoza',
+                date: '2026-10-10',
+                time: '10:00',
+                status: 'Confirmada'
+            }
+        ];
+
+        // Estado Persistente en localStorage
+        let services = JSON.parse(localStorage.getItem('imp_services')) || initialServices;
+        let barbers = JSON.parse(localStorage.getItem('imp_barbers')) || initialBarbers;
+        let appointments = JSON.parse(localStorage.getItem('imp_appointments')) || initialAppointments;
+        let currentUser = JSON.parse(localStorage.getItem('imp_user')) || null;
+        let reviews = JSON.parse(localStorage.getItem('imp_reviews')) || initialReviews;
+        let activeCategoryFilter = 'todos';
+
+        window.onload = function() {
+            saveDataLocally();
+            renderLandingServices();
+            renderLandingBarbers();
+            populateBookingOptions();
+            generateQRCode();
+            updateAuthUI();
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('booking-date').min = today;
+            document.getElementById('booking-date').value = today;
+        };
+
+        function saveDataLocally() {
+            localStorage.setItem('imp_services', JSON.stringify(services));
+            localStorage.setItem('imp_barbers', JSON.stringify(barbers));
+            localStorage.setItem('imp_appointments', JSON.stringify(appointments));
+            localStorage.setItem('imp_user', JSON.stringify(currentUser));
+            localStorage.setItem('imp_reviews', JSON.stringify(reviews));
+        }
+
+        // Formateador estándar de Pesos Colombianos (COP)
+        function formatCOP(amount) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount) + ' COP';
+        }
+
+        // Sistema de Vistas
+        function showView(viewName) {
+            const views = ['landing', 'services', 'booking', 'qr', 'stylists', 'panel-client', 'panel-barber', 'panel-admin'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.classList.add('hidden');
+            });
+
+            const activeView = document.getElementById(`view-${viewName}`);
+            if (activeView) activeView.classList.remove('hidden');
+
+            ['landing', 'services', 'booking', 'qr', 'stylists'].forEach(nav => {
+                const navBtn = document.getElementById(`nav-${nav}`);
+                if (navBtn) {
+                    if (nav === viewName) {
+                        navBtn.className = "hover:text-amber-400 transition-colors py-2 text-amber-400 border-b-2 border-amber-500 font-semibold";
+                    } else {
+                        navBtn.className = "hover:text-amber-400 transition-colors py-2 border-b-2 border-transparent font-medium";
+                    }
+                }
+            });
+
+            if (viewName === 'services') renderFullServices();
+            if (viewName === 'stylists') renderStylistsFull();
+            if (viewName === 'panel-client') renderClientPanel();
+            if (viewName === 'panel-barber') renderBarberPanel();
+            if (viewName === 'panel-admin') renderAdminPanel();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-950/90 border-red-800 text-red-200' : 'bg-amber-950/90 border-amber-700 text-amber-200';
+            
+            toast.className = `p-3.5 rounded-2xl border ${bgColor} shadow-2xl text-xs flex items-center gap-2.5 animate-fade-in pointer-events-auto backdrop-blur-md`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation text-red-400' : 'fa-circle-check text-amber-400'} text-base"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3800);
+        }
+
+        function renderLandingServices() {
+            const container = document.getElementById('landing-services-grid');
+            container.innerHTML = services.slice(0, 4).map(srv => `
+                <div class="glass-panel card-hover-effect rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">${srv.category}</span>
+                        <h3 class="font-bold text-sm text-white mt-1">${srv.name}</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed mt-1">${srv.description}</p>
+                    </div>
+                    <div class="pt-3 border-t border-zinc-800/80 flex items-center justify-between">
+                        <span class="text-[11px] text-zinc-500"><i class="fa-regular fa-clock mr-1"></i>${srv.duration} min</span>
+                        <span class="font-serif font-bold gold-gradient-text text-sm">${formatCOP(srv.price)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLandingBarbers() {
+            const container = document.getElementById('landing-barbers-grid');
+            container.innerHTML = barbers.map(b => `
+                <div class="glass-panel card-hover-effect rounded-2xl p-4 flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/20 to-rose-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-sm shadow-md">
+                        ${b.name.charAt(0)}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-xs">${b.name}</h4>
+                        <p class="text-[10px] text-zinc-400">${b.role}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterServices(cat) {
+            activeCategoryFilter = cat;
+            ['todos', 'barberia', 'salon', 'unas'].forEach(c => {
+                const btn = document.getElementById(`filter-${c}`);
+                if (btn) {
+                    if (c === cat) {
+                        btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-zinc-950 shadow-md";
+                    } else {
+                        btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800";
+                    }
+                }
+            });
+            renderFullServices();
+        }
+
+        function renderFullServices() {
+            const container = document.getElementById('full-services-grid');
+            const filtered = activeCategoryFilter === 'todos' 
+                ? services 
+                : services.filter(s => s.category === activeCategoryFilter);
+
+            container.innerHTML = filtered.map(srv => `
+                <div class="glass-panel card-hover-effect rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] uppercase font-extrabold text-amber-400 tracking-wider">${srv.category}</span>
+                            <span class="font-serif font-bold text-amber-300 text-sm">${formatCOP(srv.price)}</span>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">${srv.name}</h3>
+                        <p class="text-xs text-zinc-400 leading-relaxed">${srv.description}</p>
+                    </div>
+                    <div class="pt-3 border-t border-zinc-800 flex justify-between items-center">
+                        <span class="text-[11px] text-zinc-500"><i class="fa-regular fa-clock mr-1"></i>${srv.duration} mins</span>
+                        <button onclick="selectServiceAndBook('${srv.id}')" class="btn-interactive px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500 hover:text-zinc-950 text-amber-400 text-xs font-bold rounded-xl border border-amber-500/30">
+                            Reservar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateBookingOptions() {
+            const srvSelect = document.getElementById('booking-service');
+            srvSelect.innerHTML = '<option value="">-- Elige un Servicio --</option>' + 
+                services.map(s => `<option value="${s.id}">${s.name} - (${formatCOP(s.price)})</option>`).join('');
+
+            const barberSelect = document.getElementById('booking-barber');
+            barberSelect.innerHTML = '<option value="">-- Asignación Automática / Cualquiera --</option>' + 
+                barbers.map(b => `<option value="${b.id}">${b.name} (${b.role})</option>`).join('');
+        }
+
+        function calculateBookingTotal() {
+            const srvId = document.getElementById('booking-service').value;
+            const selected = services.find(s => s.id === srvId);
+            document.getElementById('booking-total-price').innerText = selected ? formatCOP(selected.price) : "$ 0 COP";
+        }
+
+        function selectServiceAndBook(srvId) {
+            showView('booking');
+            document.getElementById('booking-service').value = srvId;
+            calculateBookingTotal();
+        }
+
+        // Control Anti-Solapamiento
+        function handleBookingSubmit(e) {
+            e.preventDefault();
+
+            const serviceId = document.getElementById('booking-service').value;
+            const barberId = document.getElementById('booking-barber').value;
+            const date = document.getElementById('booking-date').value;
+            const time = document.getElementById('booking-time').value;
+            const clientName = document.getElementById('booking-client-name').value;
+            const clientPhone = document.getElementById('booking-client-phone').value;
+
+            const serviceObj = services.find(s => s.id === serviceId);
+            let barberObj = barbers.find(b => b.id === barberId) || barbers[0];
+
+            // Validar solapamientos
+            const isOverlap = appointments.some(apt => 
+                apt.barberId === barberObj.id &&
+                apt.date === date &&
+                apt.time === time &&
+                apt.status !== 'Cancelada'
+            );
+
+            if (isOverlap) {
+                showToast(`El especialista ${barberObj.name} ya tiene cita el ${date} a las ${time}. Por favor escoge otra hora.`, 'error');
+                return;
+            }
+
+            const newAppointment = {
+                id: 'apt-' + Date.now().toString().slice(-4),
+                clientName,
+                clientPhone,
+                serviceId,
+                serviceName: serviceObj.name,
+                price: serviceObj.price,
+                barberId: barberObj.id,
+                barberName: barberObj.name,
+                date,
+                time,
+                status: 'Pendiente'
+            };
+
+            appointments.push(newAppointment);
+            saveDataLocally();
+
+            showToast(`Cita reservada para el ${date} a las ${time} hrs.`);
+            document.getElementById('booking-form').reset();
+            calculateBookingTotal();
+
+            if (currentUser && currentUser.role === 'cliente') {
+                showView('panel-client');
+            }
+        }
+
+        function openAuthModal(tab = 'login') {
+            document.getElementById('modal-auth').classList.remove('hidden');
+            switchAuthTab(tab);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('form-login');
+            const regForm = document.getElementById('form-register');
+            const tabLogin = document.getElementById('tab-login-btn');
+            const tabReg = document.getElementById('tab-register-btn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                tabLogin.className = "flex-1 pb-2.5 text-center text-xs font-bold border-b-2 border-amber-500 text-amber-400";
+                tabReg.className = "flex-1 pb-2.5 text-center text-xs font-bold border-b-2 border-transparent text-zinc-500 hover:text-zinc-300";
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabReg.className = "flex-1 pb-2.5 text-center text-xs font-bold border-b-2 border-amber-500 text-amber-400";
+                tabLogin.className = "flex-1 pb-2.5 text-center text-xs font-bold border-b-2 border-transparent text-zinc-500 hover:text-zinc-300";
+            }
+        }
+
+        function toggleLoginSecurityKey() {
+            const role = document.getElementById('login-role').value;
+            const container = document.getElementById('login-key-container');
+            if (role === 'admin' || role === 'encargado') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function toggleRegSecurityKey() {
+            const role = document.getElementById('reg-role').value;
+            const container = document.getElementById('reg-key-container');
+            if (role === 'admin' || role === 'encargado') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const role = document.getElementById('login-role').value;
+            const email = document.getElementById('login-email').value;
+            const securityKey = document.getElementById('login-security-key').value;
+
+            if (role === 'admin' && securityKey !== SECURITY_KEYS.admin) {
+                showToast('Clave Maestra de Administrador incorrecta.', 'error');
+                return;
+            }
+            if (role === 'encargado' && securityKey !== SECURITY_KEYS.encargado) {
+                showToast('Clave Maestra de Encargado/Especialista incorrecta.', 'error');
+                return;
+            }
+
+            currentUser = {
+                name: email.split('@')[0],
+                email: email,
+                role: role
+            };
+
+            saveDataLocally();
+            updateAuthUI();
+            closeModal('modal-auth');
+            showToast(`Bienvenido al sistema`);
+            goToPanel();
+        }
+
+        function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const role = document.getElementById('reg-role').value;
+            const securityKey = document.getElementById('reg-security-key').value;
+
+            if (role === 'admin' && securityKey !== SECURITY_KEYS.admin) {
+                showToast('Clave Maestra de Administrador inválida.', 'error');
+                return;
+            }
+            if (role === 'encargado' && securityKey !== SECURITY_KEYS.encargado) {
+                showToast('Clave Maestra de Encargado/Especialista inválida.', 'error');
+                return;
+            }
+
+            currentUser = { name, email, role };
+            saveDataLocally();
+            updateAuthUI();
+            closeModal('modal-auth');
+            showToast(`Cuenta creada e ingresada correctamente.`);
+            goToPanel();
+        }
+
+        function logout() {
+            currentUser = null;
+            saveDataLocally();
+            updateAuthUI();
+            showToast('Sesión finalizada.');
+            showView('landing');
+        }
+
+        function updateAuthUI() {
+            const userBadge = document.getElementById('user-badge');
+            const userNameDisplay = document.getElementById('user-name-display');
+            const mainAuthBtn = document.getElementById('auth-main-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const panelBtn = document.getElementById('panel-shortcut-btn');
+
+            if (currentUser) {
+                userBadge.classList.remove('hidden');
+                userBadge.classList.add('flex');
+                userNameDisplay.innerText = `${currentUser.name} (${currentUser.role})`;
+                
+                mainAuthBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                panelBtn.classList.remove('hidden');
+            } else {
+                userBadge.classList.add('hidden');
+                mainAuthBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                panelBtn.classList.add('hidden');
+            }
+        }
+
+        function goToPanel() {
+            if (!currentUser) {
+                openAuthModal('login');
+                return;
+            }
+            if (currentUser.role === 'admin') showView('panel-admin');
+            else if (currentUser.role === 'encargado') showView('panel-barber');
+            else showView('panel-client');
+        }
+
+        function renderClientPanel() {
+            document.getElementById('client-welcome-msg').innerText = `Hola, ${currentUser?.name || 'Cliente'}. Consulta tus reservas.`;
+            const list = document.getElementById('client-appointments-list');
+            
+            if (appointments.length === 0) {
+                list.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-zinc-500">No registras citas activas.</td></tr>`;
+                return;
+            }
+
+            list.innerHTML = appointments.map(apt => `
+                <tr class="hover:bg-zinc-900/40">
+                    <td class="p-3.5 font-bold text-white">${apt.serviceName}</td>
+                    <td class="p-3.5 text-zinc-400">${apt.barberName}</td>
+                    <td class="p-3.5 text-amber-400 font-medium">${apt.date} - ${apt.time}</td>
+                    <td class="p-3.5 font-bold">${formatCOP(apt.price)}</td>
+                    <td class="p-3.5">${getStatusBadge(apt.status)}</td>
+                    <td class="p-3.5 text-right">
+                        ${apt.status !== 'Cancelada' ? `
+                            <button onclick="changeStatus('${apt.id}', 'Cancelada')" class="text-[11px] px-2.5 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20">
+                                Cancelar
+                            </button>
+                        ` : '<span class="text-zinc-600">-</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBarberPanel() {
+            const list = document.getElementById('barber-appointments-list');
+            list.innerHTML = appointments.map(apt => `
+                <tr class="hover:bg-zinc-900/40">
+                    <td class="p-3.5 font-bold text-white">${apt.clientName}</td>
+                    <td class="p-3.5 text-zinc-400">${apt.clientPhone}</td>
+                    <td class="p-3.5 text-zinc-300">${apt.serviceName}</td>
+                    <td class="p-3.5 text-amber-400">${apt.date} ${apt.time}</td>
+                    <td class="p-3.5 font-bold">${formatCOP(apt.price)}</td>
+                    <td class="p-3.5">${getStatusBadge(apt.status)}</td>
+                    <td class="p-3.5 text-center">
+                        <select onchange="changeStatus('${apt.id}', this.value)" class="bg-zinc-950 border border-zinc-800 text-[11px] text-zinc-200 rounded-lg px-2 py-1">
+                            <option value="Pendiente" ${apt.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                            <option value="Confirmada" ${apt.status === 'Confirmada' ? 'selected' : ''}>Confirmada</option>
+                            <option value="Completada" ${apt.status === 'Completada' ? 'selected' : ''}>Completada</option>
+                            <option value="Cancelada" ${apt.status === 'Cancelada' ? 'selected' : ''}>Cancelada</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminPanel() {
+            const totalRev = appointments.filter(a => a.status !== 'Cancelada').reduce((acc, a) => acc + Number(a.price), 0);
+            document.getElementById('admin-stat-revenue').innerText = formatCOP(totalRev);
+            document.getElementById('admin-stat-citas').innerText = appointments.length;
+            document.getElementById('admin-stat-servicios').innerText = services.length;
+
+            const list = document.getElementById('admin-appointments-list');
+            list.innerHTML = appointments.map(apt => `
+                <tr class="hover:bg-zinc-900/40">
+                    <td class="p-3.5 font-bold text-white">${apt.clientName}</td>
+                    <td class="p-3.5 text-zinc-300">${apt.serviceName}</td>
+                    <td class="p-3.5 text-zinc-400">${apt.barberName}</td>
+                    <td class="p-3.5 text-amber-400">${apt.date} ${apt.time}</td>
+                    <td class="p-3.5 font-bold">${formatCOP(apt.price)}</td>
+                    <td class="p-3.5">${getStatusBadge(apt.status)}</td>
+                    <td class="p-3.5 text-right space-x-1">
+                        <button onclick="changeStatus('${apt.id}', 'Confirmada')" class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20" title="Confirmar">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button onclick="changeStatus('${apt.id}', 'Cancelada')" class="p-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20" title="Cancelar">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'Confirmada') return `<span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-semibold">Confirmada</span>`;
+            if (status === 'Cancelada') return `<span class="px-2.5 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-full text-[10px] font-semibold">Cancelada</span>`;
+            if (status === 'Completada') return `<span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-[10px] font-semibold">Completada</span>`;
+            return `<span class="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-[10px] font-semibold">Pendiente</span>`;
+        }
+
+        function changeStatus(aptId, newStatus) {
+            const apt = appointments.find(a => a.id === aptId);
+            if (apt) {
+                apt.status = newStatus;
+                saveDataLocally();
+                showToast(`Estado actualizado: ${newStatus}`);
+                if (currentUser?.role === 'admin') renderAdminPanel();
+                else if (currentUser?.role === 'encargado') renderBarberPanel();
+                else renderClientPanel();
+            }
+        }
+
+        function handleAddServiceSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('srv-name').value;
+            const category = document.getElementById('srv-cat').value;
+            const price = Number(document.getElementById('srv-price').value);
+            const duration = Number(document.getElementById('srv-duration').value);
+            const description = document.getElementById('srv-desc').value;
+
+            services.push({ id: Date.now().toString(), name, category, price, duration, description });
+            saveDataLocally();
+            populateBookingOptions();
+            renderLandingServices();
+            renderAdminPanel();
+            closeModal('modal-add-service');
+            showToast('Servicio añadido exitosamente al catálogo.');
+        }
+
+        function generateQRCode() {
+            const container = document.getElementById('qrcode-canvas');
+            container.innerHTML = '';
+            new QRCode(container, {
+                text: window.location.href,
+                width: 170,
+                height: 170,
+                colorDark: "#09090b",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    </script>
+</body>
+</html>
